@@ -32,7 +32,7 @@ class AuthController extends Controller implements HasMiddleware
     public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|ends_with:@vitrinnea.com',  
+            'email' => 'required|email',  
             'password' => 'required|string|min:8',
         ]);
 
