@@ -6,12 +6,24 @@ use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class AuthController extends Controller
+class AuthController extends Controller implements HasMiddleware
 {
     public function __construct(private AuthService $authService)
     {
-        $this->middleware('auth:api', ['except' => ['login', 'verify']]);
+        //
+    }
+
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth:api', except: ['login', 'verify']),
+        ];
     }
 
     /**
