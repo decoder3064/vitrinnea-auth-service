@@ -8,9 +8,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
-    /**
-     * Attempt to log in a user
-     */
     public function login(string $email, string $password): ?array
     {
         $credentials = [
@@ -26,33 +23,21 @@ class AuthService
         return $this->respondWithToken($token);
     }
 
-    /**
-     * Log out the authenticated user
-     */
     public function logout(): void
     {
         auth()->logout();
     }
 
-    /**
-     * Refresh the JWT token
-     */
     public function refresh(): array
     {
         return $this->respondWithToken(auth()->refresh());
     }
 
-    /**
-     * Get the authenticated user with roles and permissions
-     */
     public function me(): User
     {
-        return auth()->user()->load('roles.permissions');
+        return auth()->user()->load('roles.permissions', 'groups');
     }
 
-    /**
-     * Verify a JWT token and return user data
-     */
     public function verify(string $token): ?array
     {
         try {
@@ -65,6 +50,8 @@ class AuthService
                 return null;
             }
 
+            $user->load('roles.permissions', 'groups');
+
             return [
                 'valid' => true,
                 'user_id' => $user->id,
@@ -74,18 +61,16 @@ class AuthService
                 'country' => $user->country,
                 'roles' => $user->roles->pluck('name'),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
+                'groups' => $user->groups->pluck('name'),
             ];
         } catch (\Exception $e) {
             return null;
         }
     }
 
-    /**
-     * Format the token response
-     */
     protected function respondWithToken(string $token): array
     {
-        $user = auth()->user()->load('roles.permissions');
+        $user = auth()->user()->load('roles.permissions', 'groups');
 
         return [
             'access_token' => $token,
@@ -99,6 +84,7 @@ class AuthService
                 'country' => $user->country,
                 'roles' => $user->roles->pluck('name'),
                 'permissions' => $user->getAllPermissions()->pluck('name'),
+                'groups' => $user->groups->pluck('name'),
             ],
         ];
     }

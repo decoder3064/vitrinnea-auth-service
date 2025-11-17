@@ -17,15 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \App\Http\Middleware\ForceJsonResponse::class,
         ]);
+        
+        $middleware->alias([
+            'vitrinnea.email' => \App\Http\Middleware\RestrictEmailDomain::class,
+            'admin' => \App\Http\Middleware\IsAdmin::class,
+        ]);
     })
-
-    ->withMiddleware(function (Middleware $middleware): void {
-    $middleware->alias([
-        'vitrinnea.email' => \App\Http\Middleware\RestrictEmailDomain::class,
-    ]);
-})
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Handle authentication exceptions for API
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
