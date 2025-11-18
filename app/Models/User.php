@@ -54,7 +54,7 @@ class User extends Authenticatable implements JWTSubject
             'groups' => $this->groups->pluck('name'),
         ];
     }
-
+//check what this does
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'user_groups')
