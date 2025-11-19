@@ -247,9 +247,61 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/admin/users/1/groups",
+              "raw": "{{base_url}}/admin/users/2/groups",
               "host": ["{{base_url}}"],
-              "path": ["admin", "users", "1", "groups"]
+              "path": ["admin", "users", "2", "groups"]
+            }
+          }
+        },
+        {
+          "name": "Add Single Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"group_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/2/groups/add",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", "2", "groups", "add"]
+            }
+          }
+        },
+        {
+          "name": "Remove Single Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"group_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/2/groups/remove",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", "2", "groups", "remove"]
             }
           }
         },

@@ -170,7 +170,28 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User deactivated successfully'
+            'message' => 'User deactivated successfully',
+            'data' => $user->load(['roles', 'groups'])
+        ]);
+    }
+
+    public function activate(int $id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $user->update(['active' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User activated successfully',
+            'data' => $user->load(['roles', 'groups'])
         ]);
     }
 

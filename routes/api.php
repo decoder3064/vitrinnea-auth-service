@@ -31,6 +31,7 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::post('/{id}/activate', [UserController::class, 'activate']);
         Route::post('/{id}/groups', [UserController::class, 'assignGroups']);
         Route::post('/{id}/reset-password', [UserController::class, 'resetPassword']);
     });

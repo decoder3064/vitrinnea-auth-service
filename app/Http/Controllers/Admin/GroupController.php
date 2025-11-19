@@ -111,18 +111,15 @@ class GroupController extends Controller
             ], 404);
         }
 
-        if ($group->users()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete group with assigned users'
-            ], 422);
-        }
-
+        // Detach all users before deleting
+        $userCount = $group->users()->count();
+        $group->users()->detach();
+        
         $group->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Group deleted successfully'
+            'message' => "Group deleted successfully. Removed from {$userCount} user(s)."
         ]);
     }
 }
