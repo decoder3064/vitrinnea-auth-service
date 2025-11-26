@@ -37,7 +37,7 @@ class AuthService
         ]);
 
         // Asignar rol por defecto
-        $defaultRole = $userData['role'] ?? 'employee';
+        $defaultRole = $userData['role'] ?? 'User';
         $user->assignRole($defaultRole);
 
         // Generar token JWT
