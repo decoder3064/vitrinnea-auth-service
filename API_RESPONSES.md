@@ -2,7 +2,18 @@
 
 ## Authentication Endpoints
 
+**IMPORTANT:** All authentication endpoints require the following headers:
+- `X-API-Key`: Your API key for service authentication
+- `X-API-Secret`: Your API secret for service authentication
+
 ### POST /api/auth/login
+**Headers:**
+```
+X-API-Key: your-api-key-here
+X-API-Secret: your-api-secret-here
+Content-Type: application/json
+```
+
 **Request:**
 ```json
 {
@@ -37,6 +48,74 @@
   }
 }
 ```
+
+---
+
+### POST /api/auth/register
+**Headers:**
+```
+X-API-Key: your-api-key-here
+X-API-Secret: your-api-secret-here
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "name": "New Employee",
+  "email": "newemployee@vitrinnea.com",
+  "password": "Password123!",
+  "password_confirmation": "Password123!",
+  "user_type": "employee",
+  "country": "SV",
+  "role": "employee"
+}
+```
+
+**Validation Rules:**
+- `name`: required, string, max 255 characters
+- `email`: required, email, unique, must be @vitrinnea.com domain
+- `password`: required, min 8 characters, must be confirmed
+- `user_type`: optional, values: "employee" or "admin" (default: "employee")
+- `country`: optional, values: "SV" or "GT" (default: "SV")
+- `role`: optional, any valid role name (default: "employee")
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "bearer",
+    "expires_in": 3600,
+    "user": {
+      "id": 6,
+      "name": "New Employee",
+      "email": "newemployee@vitrinnea.com",
+      "user_type": "employee",
+      "country": "SV",
+      "roles": ["employee"],
+      "permissions": [],
+      "groups": []
+    }
+  },
+  "message": "Registration successful"
+}
+```
+
+**Error Response (422 - Validation Failed):**
+```json
+{
+  "success": false,
+  "errors": {
+    "email": [
+      "The email has already been taken."
+    ]
+  }
+}
+```
+
+---
 
 ### POST /api/auth/logout
 **Headers:** `Authorization: Bearer {token}`

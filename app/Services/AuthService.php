@@ -23,6 +23,29 @@ class AuthService
         return $this->respondWithToken($token);
     }
 
+    public function register(array $userData): ?array
+    {
+        // Crear usuario
+        $user = User::create([
+            'name' => $userData['name'],
+            'email' => $userData['email'],
+            'password' => Hash::make($userData['password']),
+            'user_type' => $userData['user_type'] ?? 'employee',
+            'country' => $userData['country'] ?? 'SV',
+            'active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Asignar rol por defecto
+        $defaultRole = $userData['role'] ?? 'employee';
+        $user->assignRole($defaultRole);
+
+        // Generar token JWT
+        $token = auth()->login($user);
+
+        return $this->respondWithToken($token);
+    }
+
     public function logout(): void
     {
         auth()->logout();

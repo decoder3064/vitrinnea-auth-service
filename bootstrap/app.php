@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'vitrinnea.email' => \App\Http\Middleware\RestrictEmailDomain::class,
             'admin' => \App\Http\Middleware\IsAdmin::class,
+            'api.key' => \App\Http\Middleware\ValidateApiKey::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -22,7 +22,7 @@ class AuthController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:api', except: ['login', 'verify']),
+            new Middleware('auth:api', except: ['login', 'register', 'verify']),
         ];
     }
 
@@ -32,7 +32,7 @@ class AuthController extends Controller implements HasMiddleware
     public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',  
+            'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
 
@@ -60,6 +60,43 @@ class AuthController extends Controller implements HasMiddleware
             'data' => $result,
             'message' => 'Login successful'
         ]);
+    }
+
+    /**
+     * User registration
+     */
+    public function register(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'user_type' => 'nullable|in:employee,admin',
+            'country' => 'nullable|in:SV,GT',
+            'role' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $result = $this->authService->register($request->all());
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+                'message' => 'Registration successful'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

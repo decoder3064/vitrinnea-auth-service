@@ -48,7 +48,7 @@ Update the following in your `.env`:
 APP_NAME="Vitrinnea Auth"
 APP_ENV=local
 APP_DEBUG=true
-APP_URL=http://localhost:8000
+APP_URL=http://localhost:8001
 
 # Database Configuration
 DB_CONNECTION=pgsql
@@ -60,6 +60,10 @@ DB_PASSWORD=your_password
 
 # JWT Secret (will be generated)
 JWT_SECRET=
+
+# API Authentication for External Services
+AUTH_API_KEY=your-api-key-here
+AUTH_API_SECRET=your-api-secret-here
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS=*
@@ -144,10 +148,12 @@ Complete API documentation is available in [`API_RESPONSES.md`](API_RESPONSES.md
 ### Quick Start Endpoints
 
 **Authentication:**
-- `POST /api/auth/login` - Login and get JWT token
+- `POST /api/auth/login` - Login and get JWT token (requires X-API-Key header)
+- `POST /api/auth/register` - Register new user (requires X-API-Key header)
 - `GET /api/auth/me` - Get current user info
 - `POST /api/auth/logout` - Logout
 - `POST /api/auth/refresh` - Refresh token
+- `POST /api/auth/verify` - Verify JWT token
 
 **User Management (Admin only):**
 - `GET /api/admin/users` - List all users
@@ -200,9 +206,11 @@ app/
 ## 🔒 Security
 
 - JWT tokens expire in 60 minutes
-- Email domain restricted to `@vitrinnea.com`
+- Email domain restricted to `@vitrinnea.com` for all registrations
+- API Key authentication required for login/register endpoints (service-to-service)
 - Admin middleware protects sensitive endpoints
 - Password reset generates random secure passwords
+- Rate limiting on authentication endpoints (5 requests per minute)
 - CORS configured for production environments
 
 ## 🌍 Environment Variables

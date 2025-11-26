@@ -5,8 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\GroupController;
 
-Route::middleware(['throttle:5,1', 'vitrinnea.email'])->group(function () {
+Route::middleware(['throttle:5,1', 'vitrinnea.email', 'api.key'])->group(function () {
     Route::post('auth/login', [AuthController::class, 'login']);
+    Route::post('auth/register', [AuthController::class, 'register']);
 });
 
 Route::prefix('auth')->group(function () {
