@@ -28,14 +28,11 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'active' => 'boolean',
+    ];
 
     public function getJWTIdentifier()
     {
@@ -54,7 +51,7 @@ class User extends Authenticatable implements JWTSubject
             'groups' => $this->groups->pluck('name'),
         ];
     }
-//check what this does
+
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'user_groups')
