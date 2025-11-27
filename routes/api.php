@@ -27,6 +27,7 @@ Route::get('health', function () {
 
 Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::prefix('users')->group(function () {
+        Route::get('/countries', [UserController::class, 'getAvailableCountries']);
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'store']);
         Route::get('/{id}', [UserController::class, 'show']);
