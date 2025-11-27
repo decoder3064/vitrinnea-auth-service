@@ -43,15 +43,34 @@ class AuthController extends Controller implements HasMiddleware
             ], 422);
         }
 
+        // Validar que el header x-country esté presente
+        $country = $request->header('x-country');
+
+        if (!$country) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Header x-country is required'
+            ], 400);
+        }
+
+        // Validar formato del código de país (2 letras)
+        if (!preg_match('/^[A-Z]{2}$/i', $country)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid country code format. Expected 2-letter ISO code (e.g., SV, GT, CR)'
+            ], 400);
+        }
+
         $result = $this->authService->login(
             $request->email,
-            $request->password
+            $request->password,
+            strtoupper($country)
         );
 
         if (!$result) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials or inactive account'
+                'message' => 'Invalid credentials, inactive account, or no access to the specified country'
             ], 401);
         }
 
@@ -72,7 +91,9 @@ class AuthController extends Controller implements HasMiddleware
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'user_type' => 'nullable|in:employee,admin',
-            'country' => 'nullable|in:SV,GT',
+            'country' => 'nullable|string|size:2',
+            'allowed_countries' => 'nullable|array',
+            'allowed_countries.*' => 'string|size:2',
             'role' => 'nullable|string',
         ]);
 

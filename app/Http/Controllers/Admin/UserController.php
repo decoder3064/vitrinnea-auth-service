@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
@@ -21,7 +22,12 @@ class UserController extends Controller
         $query = User::with(['roles', 'groups']);
 
         if ($request->has('country')) {
-            $query->where('country', $request->country);
+            $countryCode = strtoupper($request->country);
+            // Buscar usuarios que tengan acceso al país especificado
+            $query->where(function($q) use ($countryCode) {
+                $q->where('country', $countryCode)
+                  ->orWhereJsonContains('allowed_countries', $countryCode);
+            });
         }
 
         if ($request->has('active')) {
@@ -66,7 +72,9 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email|ends_with:@vitrinnea.com',
-            'country' => 'required|string|size:2|in:SV,GT',
+            'country' => 'required|string|size:2',
+            'allowed_countries' => 'nullable|array|min:1',
+            'allowed_countries.*' => 'string|size:2',
             'user_type' => 'required|in:employee,customer,api_client',
             'role' => 'nullable|string|exists:roles,name',
             'groups' => 'nullable|array',
@@ -83,11 +91,17 @@ class UserController extends Controller
 
         $temporaryPassword = Str::random(12);
 
+        // Si no se envían allowed_countries, usar el country como único país permitido
+        $allowedCountries = $request->has('allowed_countries')
+            ? array_map('strtoupper', $request->allowed_countries)
+            : [strtoupper($request->country)];
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($temporaryPassword),
-            'country' => $request->country,
+            'country' => strtoupper($request->country),
+            'allowed_countries' => $allowedCountries,
             'user_type' => $request->user_type,
             'active' => true,
         ]);
@@ -104,7 +118,7 @@ class UserController extends Controller
             try {
                 Mail::to($user->email)->send(new WelcomeEmail($user, $temporaryPassword));
             } catch (\Exception $e) {
-                \Log::error('Failed to send welcome email: ' . $e->getMessage());
+                Log::error('Failed to send welcome email: ' . $e->getMessage());
             }
         }
 
@@ -129,7 +143,9 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $id . '|ends_with:@vitrinnea.com',
-            'country' => 'sometimes|string|size:2|in:SV,GT',
+            'country' => 'sometimes|string|size:2',
+            'allowed_countries' => 'sometimes|array|min:1',
+            'allowed_countries.*' => 'string|size:2',
             'user_type' => 'sometimes|in:employee,customer,api_client',
             'active' => 'sometimes|boolean',
             'role' => 'nullable|string|exists:roles,name',
@@ -142,7 +158,14 @@ class UserController extends Controller
             ], 422);
         }
 
-        $user->update($request->only(['name', 'email', 'country', 'user_type', 'active']));
+        // Convertir allowed_countries a uppercase para consistencia
+        $updateData = $request->only(['name', 'email', 'country', 'user_type', 'active']);
+
+        if ($request->has('allowed_countries')) {
+            $updateData['allowed_countries'] = array_map('strtoupper', $request->allowed_countries);
+        }
+
+        $user->update($updateData);
 
         if ($request->has('role')) {
             $user->syncRoles([$request->role]);
@@ -244,7 +267,7 @@ class UserController extends Controller
         try {
             Mail::to($user->email)->send(new PasswordResetEmail($user, $newPassword));
         } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            Log::error('Failed to send password reset email: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Password reset failed. Could not send email.'
@@ -254,6 +277,24 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Password reset successfully. New temporary password has been sent via email.',
+        ]);
+    }
+
+    public function getAvailableCountries(): JsonResponse
+    {
+        // Lista de países disponibles en Vitrinnea
+        $countries = [
+            ['code' => 'SV', 'name' => 'El Salvador'],
+            ['code' => 'GT', 'name' => 'Guatemala'],
+            ['code' => 'CR', 'name' => 'Costa Rica'],
+            ['code' => 'HN', 'name' => 'Honduras'],
+            ['code' => 'NI', 'name' => 'Nicaragua'],
+            ['code' => 'PA', 'name' => 'Panamá'],
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $countries
         ]);
     }
 }
