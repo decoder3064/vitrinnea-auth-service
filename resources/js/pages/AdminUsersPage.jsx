@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { userApi, roleApi } from '../lib/api';
+import Navbar from '../components/layout/Navbar';
+import Sidebar from '../components/layout/Sidebar';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -235,18 +237,28 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading users...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex">
+          <Sidebar />
+          <div className="flex-1 flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+              <p className="mt-4 text-gray-600">Loading users...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="sm:flex sm:items-center mb-6">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 p-8">
+          <div className="sm:flex sm:items-center mb-6">
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900">Users</h1>
           <p className="mt-2 text-sm text-gray-700">
@@ -596,6 +608,8 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
