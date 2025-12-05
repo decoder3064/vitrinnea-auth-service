@@ -3,8 +3,12 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
 
 class AuthService
 {
@@ -85,9 +89,9 @@ class AuthService
         try {
             JWTAuth::setToken($token);
             $payload = JWTAuth::getPayload();
-            
+
             $user = User::find($payload->get('sub'));
-            
+
             if (!$user || !$user->active) {
                 return null;
             }
@@ -108,6 +112,81 @@ class AuthService
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    public function forgotPassword(string $email): bool
+    {
+        // Verificar que el usuario existe
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            // Por seguridad, no revelar si el email existe o no
+            return true;
+        }
+
+        // Eliminar tokens previos
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        // Crear nuevo token
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->insert([
+            'email' => $email,
+            'token' => Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        // TODO: Enviar email con el link
+        // Por ahora, solo log del token para testing
+        Log::info('Password reset token generated', [
+            'email' => $email,
+            'token' => $token,
+            'reset_url' => config('app.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($email)
+        ]);
+
+        // En producción, enviar email:
+        // Mail::to($email)->send(new PasswordResetMail($token, $email));
+
+        return true;
+    }
+
+    public function resetPassword(string $email, string $token, string $password): bool
+    {
+        // Buscar el token
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (!$resetRecord) {
+            return false;
+        }
+
+        // Verificar que el token no ha expirado (60 minutos)
+        $createdAt = \Carbon\Carbon::parse($resetRecord->created_at);
+        if ($createdAt->addMinutes(60)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            return false;
+        }
+
+        // Verificar el token
+        if (!Hash::check($token, $resetRecord->token)) {
+            return false;
+        }
+
+        // Actualizar la contraseña del usuario
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return false;
+        }
+
+        $user->password = Hash::make($password);
+        $user->save();
+
+        // Eliminar el token usado
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        return true;
     }
 
     protected function respondWithToken(string $token, ?string $selectedCountry = null): array
