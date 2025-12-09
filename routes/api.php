@@ -4,10 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\GroupController;
+use App\Http\Controllers\SyncController;
 
 Route::middleware(['throttle:5,1', 'vitrinnea.email', 'api.key'])->group(function () {
     Route::post('auth/login', [AuthController::class, 'login']);
     Route::post('auth/register', [AuthController::class, 'register']);
+});
+
+// Service-to-service sync endpoint
+Route::middleware(['api.key'])->group(function () {
+    Route::post('sync/user', [SyncController::class, 'syncUser']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -42,7 +48,6 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/', [GroupController::class, 'store']);
         Route::get('/{id}', [GroupController::class, 'show']);
-        Route::put('/{id}', [GroupController::class, 'update']);
         Route::delete('/{id}', [GroupController::class, 'destroy']);
     });
 });
