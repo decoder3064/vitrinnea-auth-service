@@ -22,7 +22,7 @@ class AuthController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:api', except: ['login', 'register', 'verify']),
+            new Middleware('auth:api', except: ['login', 'register', 'verify', 'forgotPassword', 'resetPassword']),
         ];
     }
 
@@ -181,6 +181,67 @@ class AuthController extends Controller implements HasMiddleware
         return response()->json([
             'success' => true,
             'data' => $result
+        ]);
+    }
+
+    /**
+     * Request password reset
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $result = $this->authService->forgotPassword($request->email);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'If your email exists in our system, you will receive a password reset link'
+        ]);
+    }
+
+    /**
+     * Reset password with token
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $result = $this->authService->resetPassword(
+            $request->email,
+            $request->token,
+            $request->password
+        );
+
+        if (!$result) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token'
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password has been reset successfully'
         ]);
     }
 }

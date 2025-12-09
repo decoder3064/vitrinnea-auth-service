@@ -251,69 +251,226 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         // Create test users
+        $this->command->info('👤 Creating test users...');
 
-        // Admin
-        $adminUser = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@vitrinnea.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'employee',
-            'country' => 'SV',
-            'active' => true,
-        ]);
-        $adminUser->assignRole('Admin');
+        $testUsers = [
+            // Super Admin - Acceso a todos los países
+            [
+                'name' => 'Super Admin',
+                'email' => 'admin@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT', 'CR', 'HN', 'NI', 'PA'],
+                'active' => true,
+                'role' => 'Admin',
+            ],
 
-        // Programador
-        $programadorUser = User::create([
-            'name' => 'Programador',
-            'email' => 'programador@vitrinnea.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'employee',
-            'country' => 'SV',
-            'active' => true,
-        ]);
-        $programadorUser->assignRole('Programadores');
+            // Programador - Acceso a todos los países
+            [
+                'name' => 'Desarrollador Principal',
+                'email' => 'programador@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT', 'CR', 'HN', 'NI', 'PA'],
+                'active' => true,
+                'role' => 'Programadores',
+            ],
 
-        // Gestor
-        $gestorUser = User::create([
-            'name' => 'Gestor',
-            'email' => 'gestor@vitrinnea.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'employee',
-            'country' => 'SV',
-            'active' => true,
-        ]);
-        $gestorUser->assignRole('Gestores');
+            // Administración - Múltiples países
+            [
+                'name' => 'Administrador Regional',
+                'email' => 'administracion@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT', 'CR'],
+                'active' => true,
+                'role' => 'Administracion',
+            ],
 
-        // Operaciones
-        $operacionesUser = User::create([
-            'name' => 'Operaciones',
-            'email' => 'operaciones@vitrinnea.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'employee',
-            'country' => 'SV',
-            'active' => true,
-        ]);
-        $operacionesUser->assignRole('Operaciones');
+            // Gestores
+            [
+                'name' => 'Gestor SV',
+                'email' => 'gestor@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV'],
+                'active' => true,
+                'role' => 'Gestores',
+            ],
 
-        // User (Basic Employee)
-        $basicUser = User::create([
-            'name' => 'Usuario Básico',
-            'email' => 'user@vitrinnea.com',
-            'password' => Hash::make('password'),
-            'user_type' => 'employee',
-            'country' => 'SV',
-            'active' => true,
-        ]);
-        $basicUser->assignRole('User');
+            // Operaciones
+            [
+                'name' => 'Operaciones SV',
+                'email' => 'operaciones@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT'],
+                'active' => true,
+                'role' => 'Operaciones',
+            ],
 
-        $this->command->info('Roles, permissions, and test users created successfully!');
-        $this->command->info('');
-        $this->command->info('Test Users:');
-        $this->command->info('  Admin: admin@vitrinnea.com / password');
-        $this->command->info('  Programador: programador@vitrinnea.com / password');
-        $this->command->info('  Gestor: gestor@vitrinnea.com / password');
-        $this->command->info('  Operaciones: operaciones@vitrinnea.com / password');
-        $this->command->info('  User: user@vitrinnea.com / password');
+            // Atención al Cliente
+            [
+                'name' => 'Atención al Cliente',
+                'email' => 'atencion@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT'],
+                'active' => true,
+                'role' => 'AtencionCliente',
+            ],
+
+            // Vendedor
+            [
+                'name' => 'Vendedor SV',
+                'email' => 'vendedor@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV'],
+                'active' => true,
+                'role' => 'Vendedor',
+            ],
+
+            // Contabilidad
+            [
+                'name' => 'Contador Regional',
+                'email' => 'contabilidad@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT', 'CR'],
+                'active' => true,
+                'role' => 'Contabilidad',
+            ],
+
+            // Despacho
+            [
+                'name' => 'Encargado Despacho',
+                'email' => 'despacho@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV'],
+                'active' => true,
+                'role' => 'Despacho',
+            ],
+
+            // Marketing
+            [
+                'name' => 'Marketing Manager',
+                'email' => 'marketing@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV', 'GT', 'CR'],
+                'active' => true,
+                'role' => 'Marketing',
+            ],
+
+            // Cajero
+            [
+                'name' => 'Cajero Principal',
+                'email' => 'cajero@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV'],
+                'active' => true,
+                'role' => 'Cajero',
+            ],
+
+            // Usuario Básico
+            [
+                'name' => 'Usuario Básico',
+                'email' => 'user@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'SV',
+                'allowed_countries' => ['SV'],
+                'active' => true,
+                'role' => 'User',
+            ],
+
+            // Usuarios por país específico
+
+            // Guatemala
+            [
+                'name' => 'Admin Guatemala',
+                'email' => 'admin.gt@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'GT',
+                'allowed_countries' => ['GT'],
+                'active' => true,
+                'role' => 'Administracion',
+            ],
+
+            // Costa Rica
+            [
+                'name' => 'Admin Costa Rica',
+                'email' => 'admin.cr@vitrinnea.com',
+                'password' => Hash::make('password'),
+                'user_type' => 'employee',
+                'country' => 'CR',
+                'allowed_countries' => ['CR'],
+                'active' => true,
+                'role' => 'Administracion',
+            ],
+        ];
+
+        foreach ($testUsers as $userData) {
+            $role = $userData['role'];
+            unset($userData['role']);
+
+            $user = User::create($userData);
+            $user->assignRole($role);
+        }
+
+        $this->command->info('✅ ' . count($testUsers) . ' test users created successfully!');
+        $this->command->newLine();
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->command->info('📋 TEST USERS CREDENTIALS (All use password: password)');
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->command->newLine();
+
+        $this->command->info('🔑 ADMINISTRATORS:');
+        $this->command->info('  • admin@vitrinnea.com (Admin - All countries)');
+        $this->command->info('  • programador@vitrinnea.com (Programadores - All countries)');
+        $this->command->info('  • administracion@vitrinnea.com (Administracion - SV, GT, CR)');
+        $this->command->newLine();
+
+        $this->command->info('👥 OPERATIONS:');
+        $this->command->info('  • operaciones@vitrinnea.com (Operaciones - SV, GT)');
+        $this->command->info('  • gestor@vitrinnea.com (Gestores - SV)');
+        $this->command->info('  • despacho@vitrinnea.com (Despacho - SV)');
+        $this->command->newLine();
+
+        $this->command->info('💼 SALES & SERVICE:');
+        $this->command->info('  • vendedor@vitrinnea.com (Vendedor - SV)');
+        $this->command->info('  • atencion@vitrinnea.com (AtencionCliente - SV, GT)');
+        $this->command->info('  • cajero@vitrinnea.com (Cajero - SV)');
+        $this->command->newLine();
+
+        $this->command->info('📊 SUPPORT:');
+        $this->command->info('  • contabilidad@vitrinnea.com (Contabilidad - SV, GT, CR)');
+        $this->command->info('  • marketing@vitrinnea.com (Marketing - SV, GT, CR)');
+        $this->command->newLine();
+
+        $this->command->info('🌎 COUNTRY SPECIFIC:');
+        $this->command->info('  • admin.gt@vitrinnea.com (Administracion - GT only)');
+        $this->command->info('  • admin.cr@vitrinnea.com (Administracion - CR only)');
+        $this->command->newLine();
+
+        $this->command->info('👤 BASIC:');
+        $this->command->info('  • user@vitrinnea.com (User - SV only)');
+        $this->command->newLine();
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 }

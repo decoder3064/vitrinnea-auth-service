@@ -21,6 +21,8 @@ Route::prefix('auth')->group(function () {
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
     Route::post('verify', [AuthController::class, 'verify']);
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('reset-password', [AuthController::class, 'resetPassword']);
 });
 
 Route::get('health', function () {
